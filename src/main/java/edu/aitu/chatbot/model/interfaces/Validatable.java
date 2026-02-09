@@ -1,4 +1,4 @@
-package model.interfaces;
+package edu.aitu.chatbot.model.interfaces;
 
 public interface Validatable {
     boolean isValid();

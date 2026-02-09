@@ -1,6 +1,5 @@
-package utils;
-
-import model.Bot;
+package edu.aitu.chatbot.utils;
+import edu.aitu.chatbot.model.Bot;
 import java.util.Comparator;
 import java.util.List;
 

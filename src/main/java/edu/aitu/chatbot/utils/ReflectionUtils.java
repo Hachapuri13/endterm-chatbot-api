@@ -1,4 +1,4 @@
-package utils;
+package edu.aitu.chatbot.utils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;

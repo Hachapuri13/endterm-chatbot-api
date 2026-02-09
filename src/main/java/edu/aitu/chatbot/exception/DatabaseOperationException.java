@@ -1,4 +1,4 @@
-package exception;
+package edu.aitu.chatbot.exception;
 
 public class DatabaseOperationException extends RuntimeException {
     public DatabaseOperationException(String message) {

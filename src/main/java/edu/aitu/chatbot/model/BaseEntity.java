@@ -1,4 +1,4 @@
-package model;
+package edu.aitu.chatbot.model;
 
 public abstract class BaseEntity {
     protected int id;

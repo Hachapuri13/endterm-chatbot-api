@@ -1,4 +1,4 @@
-package model;
+package edu.aitu.chatbot.model;
 
 import java.util.Date;
 

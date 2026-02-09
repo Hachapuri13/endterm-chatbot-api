@@ -1,7 +1,6 @@
-package model;
-
-import model.interfaces.Loggable;
-import model.interfaces.Validatable;
+package edu.aitu.chatbot.model;
+import edu.aitu.chatbot.model.interfaces.Loggable;
+import edu.aitu.chatbot.model.interfaces.Validatable;
 
 public abstract class ChatParticipantBase extends BaseEntity implements Loggable, Validatable {
     protected String name;

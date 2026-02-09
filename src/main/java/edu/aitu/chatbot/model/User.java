@@ -1,6 +1,5 @@
-package model;
-
-import model.interfaces.Tokenizable;
+package edu.aitu.chatbot.model;
+import edu.aitu.chatbot.model.interfaces.Tokenizable;
 
 public class User extends ChatParticipantBase implements Tokenizable {
     private String persona;

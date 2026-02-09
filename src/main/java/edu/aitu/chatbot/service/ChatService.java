@@ -5,6 +5,10 @@ import edu.aitu.chatbot.exception.ResourceNotFoundException;
 import edu.aitu.chatbot.model.Bot;
 import edu.aitu.chatbot.model.ChatSession;
 import edu.aitu.chatbot.model.User;
+import edu.aitu.chatbot.patterns.factory.ChatParticipantFactory;
+import edu.aitu.chatbot.patterns.factory.ParticipantSpec;
+import edu.aitu.chatbot.patterns.factory.ParticipantType;
+import edu.aitu.chatbot.patterns.singleton.AppLogger;
 import edu.aitu.chatbot.repository.BotRepository;
 import edu.aitu.chatbot.repository.ChatSessionRepository;
 import edu.aitu.chatbot.repository.UserRepository;
@@ -27,10 +31,12 @@ public class ChatService {
     }
 
     public List<Bot> getAllBots() {
+        AppLogger.getInstance().info("Fetching all bots");
         return botRepository.getAll();
     }
 
     public Bot getBotById(int id) {
+        AppLogger.getInstance().info("Fetching bot id=" + id);
         Bot bot = botRepository.getById(id);
         if (bot == null) {
             throw new ResourceNotFoundException("Bot with ID " + id + " not found.");
@@ -39,26 +45,20 @@ public class ChatService {
     }
 
     public Bot createBot(String name, String greeting, String definition, int tokenLimit) {
-        if (name == null || name.trim().isEmpty()) {
-            throw new InvalidInputException("Bot name cannot be empty.");
-        }
-        if (tokenLimit <= 0) {
-            throw new InvalidInputException("Token limit must be positive.");
-        }
-
-        Bot bot = new Bot(0, name, greeting, definition, tokenLimit);
+        AppLogger.getInstance().info("Creating bot name=" + name);
+        Bot bot = (Bot) ChatParticipantFactory.createParticipant(
+                ParticipantType.BOT,
+                new ParticipantSpec(0, name, greeting, definition, tokenLimit, null, null)
+        );
         return botRepository.create(bot);
     }
 
     public void updateBot(int id, String newName, String newGreet, String newDef, int newLimit) {
-        if (newLimit <= 0) {
-            throw new InvalidInputException("Token limit must be positive.");
-        }
-        if (newName == null || newName.trim().isEmpty()) {
-            throw new InvalidInputException("Bot name cannot be empty.");
-        }
-
-        Bot updatedBot = new Bot(id, newName, newGreet, newDef, newLimit);
+        AppLogger.getInstance().info("Updating bot id=" + id);
+        Bot updatedBot = (Bot) ChatParticipantFactory.createParticipant(
+                ParticipantType.BOT,
+                new ParticipantSpec(id, newName, newGreet, newDef, newLimit, null, null)
+        );
         boolean isUpdated = botRepository.update(updatedBot);
 
         if (!isUpdated) {
@@ -67,6 +67,7 @@ public class ChatService {
     }
 
     public void deleteBot(int id) {
+        AppLogger.getInstance().warn("Deleting bot id=" + id);
         boolean isDeleted = botRepository.delete(id);
         if (!isDeleted) {
             throw new ResourceNotFoundException("Bot with ID " + id + " not found.");
@@ -74,10 +75,12 @@ public class ChatService {
     }
 
     public List<User> getAllUsers() {
+        AppLogger.getInstance().info("Fetching all users");
         return userRepository.getAll();
     }
 
     public User getUserById(int id) {
+        AppLogger.getInstance().info("Fetching user id=" + id);
         User user = userRepository.getById(id);
         if (user == null) {
             throw new ResourceNotFoundException("User with ID " + id + " not found.");
@@ -86,19 +89,20 @@ public class ChatService {
     }
 
     public User createUser(String name, String persona, boolean isPremium) {
-        if (name == null || name.trim().isEmpty()) {
-            throw new InvalidInputException("User name cannot be empty.");
-        }
-        User user = new User(0, name, persona, isPremium);
+        AppLogger.getInstance().info("Creating user name=" + name);
+        User user = (User) ChatParticipantFactory.createParticipant(
+                ParticipantType.USER,
+                new ParticipantSpec(0, name, null, null, null, persona, isPremium)
+        );
         return userRepository.create(user);
     }
 
     public void updateUser(int id, String newName, String newPersona, boolean isPremium) {
-        if (newName == null || newName.trim().isEmpty()) {
-            throw new InvalidInputException("User name cannot be empty.");
-        }
-
-        User updatedUser = new User(id, newName, newPersona, isPremium);
+        AppLogger.getInstance().info("Updating user id=" + id);
+        User updatedUser = (User) ChatParticipantFactory.createParticipant(
+                ParticipantType.USER,
+                new ParticipantSpec(id, newName, null, null, null, newPersona, isPremium)
+        );
         boolean success = userRepository.update(updatedUser);
         if (!success) {
             throw new ResourceNotFoundException("Cannot update: User with ID " + id + " not found.");
@@ -106,6 +110,7 @@ public class ChatService {
     }
 
     public void deleteUser(int id) {
+        AppLogger.getInstance().warn("Deleting user id=" + id);
         boolean success = userRepository.delete(id);
         if (!success) {
             throw new ResourceNotFoundException("Cannot delete: User with ID " + id + " not found.");
@@ -113,10 +118,12 @@ public class ChatService {
     }
 
     public List<ChatSession> getAllSessions() {
+        AppLogger.getInstance().info("Fetching all sessions");
         return sessionRepository.getAll();
     }
 
     public ChatSession getSessionById(int id) {
+        AppLogger.getInstance().info("Fetching session id=" + id);
         ChatSession session = sessionRepository.getById(id);
         if (session == null) {
             throw new ResourceNotFoundException("Session with ID " + id + " not found.");
@@ -125,6 +132,7 @@ public class ChatService {
     }
 
     public ChatSession logChatSession(Bot bot, User user, Date startTime, int tokensUsed) {
+        AppLogger.getInstance().info("Creating session botId=" + bot.getId() + " userId=" + user.getId());
         ChatSession session = new ChatSession(0, bot, user, startTime, tokensUsed);
         return sessionRepository.create(session);
     }
@@ -134,6 +142,8 @@ public class ChatService {
             throw new InvalidInputException("Token count cannot be negative.");
         }
 
+        AppLogger.getInstance().info("Updating session tokens id=" + id + " tokens=" + newTotalTokens);
+
         boolean success = sessionRepository.updateTokens(id, newTotalTokens);
         if (!success) {
             throw new ResourceNotFoundException("Cannot update: Session with ID " + id + " not found.");
@@ -141,6 +151,7 @@ public class ChatService {
     }
 
     public void deleteSession(int id) {
+        AppLogger.getInstance().warn("Deleting session id=" + id);
         boolean success = sessionRepository.delete(id);
         if (!success) {
             throw new ResourceNotFoundException("Cannot delete: Session with ID " + id + " not found.");

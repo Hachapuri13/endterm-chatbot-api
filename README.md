@@ -3,6 +3,8 @@
 REST API for a chatbot platform developed as an endterm project.
 The system provides CRUD operations for bots and users, as well as chat session management using REST principles.
 
+*! Database schema is provided in docs/schema.sql*
+
 ---
 
 ## Technologies Used

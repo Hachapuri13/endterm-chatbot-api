@@ -67,10 +67,41 @@ GET /api/bots
 ### POST create bot
 POST /api/bots
 
+Sample request:
+```json
+{
+  "name": "SupportBot",
+  "greeting": "Hi! How can I help?",
+  "definition": "You are a helpful assistant for customer support.",
+  "tokenLimit": 2048
+}
+```
+
+Sample response:
+```json
+{
+  "id": 1,
+  "name": "SupportBot",
+  "greeting": "Hi! How can I help?",
+  "definition": "You are a helpful assistant for customer support.",
+  "tokenLimit": 2048
+}
+```
+
 ![POST Bot](docs/screenshots/bots_post.png)
 
 ### PUT update bot
 PUT /api/bots/{id}
+
+Sample request:
+```json
+{
+  "name": "SupportBot v2",
+  "greeting": "Hello!",
+  "definition": "You are a helpful assistant for customer support.",
+  "tokenLimit": 4096
+}
+```
 
 ![PUT Bot](docs/screenshots/bots_put.png)
 
@@ -91,6 +122,25 @@ GET /api/users
 ### POST create user
 POST /api/users
 
+Sample request:
+```json
+{
+  "name": "Alice",
+  "persona": "Student",
+  "premium": true
+}
+```
+
+Sample response:
+```json
+{
+  "id": 1,
+  "name": "Alice",
+  "persona": "Student",
+  "premium": true
+}
+```
+
 ![POST User](docs/screenshots/users_post.png)
 
 ### PUT update user
@@ -109,6 +159,37 @@ DELETE /api/users/{id}
 
 ### POST create chat session
 POST /api/sessions
+
+Sample request:
+```json
+{
+  "botId": 1,
+  "userId": 1,
+  "tokensUsed": 120
+}
+```
+
+Sample response:
+```json
+{
+  "id": 1,
+  "bot": {
+    "id": 1,
+    "name": "SupportBot",
+    "greeting": "Hi! How can I help?",
+    "definition": "You are a helpful assistant for customer support.",
+    "tokenLimit": 2048
+  },
+  "user": {
+    "id": 1,
+    "name": "Alice",
+    "persona": "Student",
+    "premium": true
+  },
+  "startedAt": "2026-02-09T12:00:00Z",
+  "totalTokensUsed": 120
+}
+```
 
 ![POST Session](docs/screenshots/sessions_post.png)
 
@@ -138,3 +219,61 @@ PATCH /api/sessions/{id}/tokens
 
 This project demonstrates a RESTful backend architecture with proper HTTP semantics,
 relational database integration, and full CRUD functionality.
+
+---
+
+## Design Patterns
+
+### Singleton
+Implemented as `AppLogger` (`edu.aitu.chatbot.patterns.singleton.AppLogger`).
+Used in the Service layer to log key actions (create/update/delete and retrieval).
+This class guarantees a single shared instance for the whole application.
+
+### Builder
+Implemented as `BotBuilder` (`edu.aitu.chatbot.patterns.builder.BotBuilder`).
+Used to construct `Bot` objects with fluent calls and optional fields (`greeting`, `definition`).
+
+### Factory
+Implemented as `ChatParticipantFactory` (`edu.aitu.chatbot.patterns.factory.ChatParticipantFactory`).
+Creates participants via a common base type (`ChatParticipantBase`) depending on `ParticipantType`.
+Used in the Service layer to centralize creation logic for `Bot` and `User`.
+
+---
+
+## Component Principles
+
+### REP (Reuse/Release Equivalence Principle)
+Reusable modules are separated into stable packages: `repository`, `service`, `utils`, `patterns`.
+These can be released and reused together as independent units.
+
+### CCP (Common Closure Principle)
+Classes that change for the same reason are grouped together:
+Controllers (`controller`) change with API surface, repositories (`repository`) change with SQL, models (`model`) change with domain rules.
+
+### CRP (Common Reuse Principle)
+Dependencies are kept minimal: controllers depend on services only, services depend on repositories/models only, and reusable helpers are in `utils` and `patterns` to avoid pulling unrelated classes.
+
+---
+
+## SOLID & OOP Summary
+
+- SRP: Controllers handle HTTP, Services handle business logic, Repositories handle DB.
+- OCP: New participant types can be added by extending factory logic without rewriting controller logic.
+- LSP: `Bot` and `User` are both usable as `ChatParticipantBase` where appropriate.
+- ISP: Small interfaces (`Loggable`, `Tokenizable`, `Validatable`) avoid forcing unused methods.
+- DIP: Higher-level layers depend on abstractions (service uses repositories via interfaces where applicable and central creation via factory).
+
+---
+
+## Database Schema
+
+SQL schema is available in `docs/schema.sql`.
+
+---
+
+## System Architecture Diagram
+
+Layered architecture: Controller → Service → Repository → Database.
+UML Diagram:
+
+![UML Diagram](docs/uml.png)
